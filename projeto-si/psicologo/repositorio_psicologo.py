@@ -1,80 +1,91 @@
-from typing import List
+from typing import List, Optional
+import mysql.connector
+from mysql.connector import Error
 from psicologo.psicologo import Psicologo
 
 class RepositorioPsicologo:
-    
-    def __init__(self, nome_arquivo="psicologos.txt"):
-        self.nome_arquivo = nome_arquivo
+    def __init__(self, host="localhost", database="pysicologia", user="root", password="root"):
+        self.host = host
+        self.database = database
+        self.user = user
+        self.password = password
+        self.conexao = self.criar_conexao()
 
-    def salvar(self, psicologo) -> Psicologo:
+    def criar_conexao(self):
         try:
-            with open(self.nome_arquivo, "a+") as file:
-                file.seek(0)
-                linhas = file.readlines()
-                id_psicologo = len(linhas) + 1
-                psicologo.id = id_psicologo
-                file.write(f"{id_psicologo},{psicologo}\n")
-            return psicologo
-        except Exception as e:
-            print(e)
-            return None
-        
-    def encontrar_por_email(self, email: str) -> Psicologo:
-        try:
-            with open(self.nome_arquivo, "r") as file:
-                linhas = file.readlines()
-                for linha in linhas:
-                    dados_psicologo = linha.strip().split(",")
-                    if dados_psicologo[1] == email:
-                        psychologist = Psicologo.from_string(linha)
-                        return psychologist
-        except Exception as e:
-            return None
-    
-    def encontrar_por_cpf(self, cpf: str) -> Psicologo:
-        try:
-            with open(self.nome_arquivo, "r") as file:
-                linhas = file.readlines()
-                for linha in linhas:
-                    dados_psicologo = linha.strip().split(",")
-                    if dados_psicologo[5] == cpf:
-                        psychologist = Psicologo.from_string(linha)
-                        return psychologist
-        except Exception as e:
-            return
-        
-    def encontrar_por_crp(self, crp: str) -> Psicologo:
-        try:
-            with open(self.nome_arquivo, "r") as file:
-                linhas = file.readlines()
-                for linha in linhas:
-                    dados_psicologo = linha.strip().split(",")
-                    if dados_psicologo[6] == crp:
-                        psychologist = Psicologo.from_string(linha)
-                        return psychologist
-        except Exception as e:
+            conexao = mysql.connector.connect(
+                host=self.host,
+                database=self.database,
+                user=self.user,
+                password=self.password
+            )
+            if conexao.is_connected():
+                return conexao
+        except Error as e:
+            print(f"Erro ao conectar ao MySQL: {e}")
             return None
 
-    def encontrar_por_id(self, id: str) -> Psicologo:
+    def salvar(self, psicologo: Psicologo) -> bool:
         try:
-            with open(self.nome_arquivo, "r") as file:
-                linhas = file.readlines()
-                for linha in linhas:
-                    dados_psicologo = linha.strip().split(",")
-                    if dados_psicologo[0] == id:
-                        psychologist = Psicologo.from_string(linha)
-                        return psychologist
-        except Exception as e:
+            cursor = self.conexao.cursor()
+            query = """
+            INSERT INTO psicologos (email, senha, nome, telefone, cpf, crp)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """
+            cursor.execute(query, (psicologo.email, psicologo.senha, psicologo.nome, psicologo.telefone, psicologo.cpf, psicologo.crp))
+            self.conexao.commit()
+            return True
+        except Error as e:
+            print(f"Erro ao adicionar psicólogo: {e}")
+            return False
+
+    def encontra_por_email(self, email: str) -> Optional[Psicologo]:
+        try:
+            cursor = self.conexao.cursor(dictionary=True)
+            query = "SELECT * FROM psicologos WHERE email = %s"
+            cursor.execute(query, (email,))
+            resultado = cursor.fetchone()
+            if resultado:
+                return Psicologo(
+                    email=resultado['email'],
+                    senha=resultado['senha'],
+                    nome=resultado['nome'],
+                    telefone=resultado['telefone'],
+                    cpf=resultado['cpf'],
+                    crp=resultado['crp'],
+                    id=resultado['id']
+                )
             return None
-    
-    def encontra_todos(self) -> List[Psicologo]:
-        psicologos = []
+        except Error as e:
+            print(f"Erro ao encontrar psicólogo pelo email: {e}")
+            return None
+
+    def existe_por_cpf(self, cpf: str) -> bool:
         try:
-            with open(self.nome_arquivo, "r") as file:
-                linhas = file.readlines()
-                for linha in linhas:
-                    psicologo = Psicologo.from_string(linha.strip())
-                    psicologos.append(psicologo)
-        except Exception as e:
-            return psicologos
-        return psicologos
+            cursor = self.conexao.cursor()
+            query = "SELECT 1 FROM psicologos WHERE cpf = %s"
+            cursor.execute(query, (cpf,))
+            return cursor.fetchone() is not None
+        except Error as e:
+            print(f"Erro ao verificar existência de psicólogo pelo CPF: {e}")
+            return False
+
+    def existe_por_email(self, email: str) -> bool:
+        try:
+            cursor = self.conexao.cursor()
+            query = "SELECT 1 FROM psicologos WHERE email = %s"
+            cursor.execute(query, (email,))
+            return cursor.fetchone() is not None
+        except Error as e:
+            print(f"Erro ao verificar existência de psicólogo pelo email: {e}")
+            return False
+
+    def existe_por_crp(self, crp: str) -> bool:
+        try:
+            cursor = self.conexao.cursor()
+            query = "SELECT 1 FROM psicologos WHERE crp = %s"
+            cursor.execute(query, (crp,))
+            return cursor.fetchone() is not None
+        except Error as e:
+            print(f"Erro ao verificar existência de psicólogo pelo CRP: {e}")
+            return False
