@@ -17,7 +17,7 @@ class RepositorioPaciente:
             print(e)
             return None
         
-    def existe_por_email(self, email) -> Paciente:
+    def existe_por_email(self, email) -> bool:
         try:
             with open(self.nome_arquivo, "r") as file:
                 lines = file.readlines()
@@ -27,10 +27,10 @@ class RepositorioPaciente:
                         return True
                 return False
         except Exception as e:
-            return None
+            return True
         
         
-    def existe_por_cpf(self, cpf) -> Paciente:
+    def existe_por_cpf(self, cpf) -> bool:
         try:
             with open(self.nome_arquivo, "r") as file:
                 lines = file.readlines()
@@ -40,7 +40,7 @@ class RepositorioPaciente:
                         return True
                 return False
         except Exception as e:
-            return None
+            return True
         
     def encontra_por_email(self, email) -> Paciente:
         try:

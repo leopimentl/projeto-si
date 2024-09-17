@@ -1,4 +1,0 @@
-1,teste@teste.com,12341234,Teste Junior,81912341234,10101010101
-2,leo@teste.com,12341234,Leandro,81910101010,12312345678
-3,leandrokhalel@teste.com,senha1234,Leandro,81912121212,00011122233
-4,leandrokhalel@teste.com,senha1234,leandrokhalel@.com,81912121212,00011122233
