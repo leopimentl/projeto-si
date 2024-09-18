@@ -10,7 +10,7 @@ class ServicoAutenticacaoPsicologo:
         if not email or not senha:
             return None
 
-        psicologo = self.repositorio_psicologo.encontrar_por_email(email)
+        psicologo = self.repositorio_psicologo.encontra_por_email(email)
         if psicologo is None or psicologo.senha != senha:
             return None
 

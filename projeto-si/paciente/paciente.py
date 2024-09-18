@@ -6,3 +6,4 @@ class Paciente:
         self.nome = nome
         self.telefone = telefone
         self.cpf = cpf
+        self.necessidade = None

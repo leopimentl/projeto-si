@@ -7,10 +7,12 @@ class ServicoPaciente:
 
     def salvar(self, paciente: Paciente) -> Paciente:
         existe_paciente_cpf = self.repositorio_paciente.existe_por_cpf(paciente.cpf)
+        if existe_paciente_cpf:
+            raise ValueError("Cpf já cadastrado.")
+    
         existe_paciente_email = self.repositorio_paciente.existe_por_email(paciente.email)
-        
-        if existe_paciente_cpf or existe_paciente_email:
-            return None
+        if existe_paciente_email:
+            raise ValueError("Email já cadastrado.")
         
         return self.repositorio_paciente.salvar(paciente)
 

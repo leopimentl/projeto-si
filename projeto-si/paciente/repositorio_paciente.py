@@ -41,6 +41,7 @@ class RepositorioPaciente:
             print(f"Erro ao salvar paciente: {e}")
             return None
 
+    
     def encontra_por_email(self, email: str) -> Optional[Paciente]:
         if not self.conexao:
             print("Conexão com o banco de dados não estabelecida.")
@@ -52,6 +53,7 @@ class RepositorioPaciente:
             resultado = cursor.fetchone()
             if resultado:
                 return Paciente(
+                    id=resultado['id'],
                     nome=resultado['nome'],
                     email=resultado['email'],
                     senha=resultado['senha'],
@@ -90,3 +92,68 @@ class RepositorioPaciente:
         except Error as e:
             print(f"Erro ao verificar CPF: {e}")
             return True
+
+    def atualizar(self, paciente: Paciente, id: int) -> Optional[Paciente]:
+        if self.conexao is None:
+            print("Conexão com o banco de dados não estabelecida.")
+            return None
+        try:
+            cursor = self.conexao.cursor()
+            query = """
+            UPDATE pacientes
+            SET nome = %s, telefone = %s
+            WHERE id = %s
+            """
+            cursor.execute(query, (paciente.nome, paciente.telefone, id))
+            self.conexao.commit()
+            if cursor.rowcount > 0:
+                print(f"Paciente com ID {id} atualizado com sucesso.")
+                return paciente
+            else:
+                print(f"Nenhuma linha foi afetada. Verifique se o ID {id} existe.")
+                return None
+        except Error as e:
+            print(f"Erro ao atualizar paciente: {e}")
+            return None
+        
+    def excluir(self, id: int) -> bool:
+        if self.conexao is None:
+            print("Conexão com o banco de dados não estabelecida.")
+            return False
+        try:
+            cursor = self.conexao.cursor()
+            query = "DELETE FROM pacientes WHERE id = %s"
+            cursor.execute(query, (id,))
+            self.conexao.commit()
+            if cursor.rowcount > 0:
+                print(f"Paciente com ID {id} excluído com sucesso.")
+                return True
+            else:
+                print(f"Nenhuma linha foi afetada. Verifique se o ID {id} existe.")
+                return False
+        except Error as e:
+            print(f"Erro ao excluir paciente: {e}")
+            return False
+        
+    def buscar_por_id(self, id: int) -> Optional[Paciente]:
+        if self.conexao is None:
+            print("Conexão com o banco de dados não estabelecida.")
+            return None
+        try:
+            cursor = self.conexao.cursor(dictionary=True)
+            query = "SELECT * FROM pacientes WHERE id = %s"
+            cursor.execute(query, (id,))
+            resultado = cursor.fetchone()
+            if resultado:
+                return Paciente(
+                    id=resultado['id'],
+                    nome=resultado['nome'],
+                    email=resultado['email'],
+                    senha=resultado['senha'],
+                    telefone=resultado['telefone'],
+                    cpf=resultado['cpf']
+                )
+            return None
+        except Error as e:
+            print(f"Erro ao buscar paciente por ID: {e}")
+            return None
