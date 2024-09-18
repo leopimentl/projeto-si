@@ -31,7 +31,7 @@ O Pysicologia é um sistema de gerenciamento de consultas psicológicas que perm
 Certifique-se de ter as seguintes bibliotecas instaladas para rodar o projeto:
 
 ```bash
-pip install mysql-connector-python tkcalendar
+pip install mysql-connector-python tkcalendar validate-docbr
 ```
 
 ## Organização dos Módulos
