@@ -1,4 +1,4 @@
-from datetime import date, datetime, time, timedelta
+from datetime import datetime, timedelta
 import tkinter as tk
 from tkinter import ttk
 from tkcalendar import DateEntry
@@ -155,13 +155,12 @@ class UserInterface:
         voltar_button.pack(pady=5)
     
     def cadastrar_paciente(self):
-        nome = self.nome_entry.get()
-        email = self.email_entry.get()
-        senha = self.senha_entry.get()
-        telefone = self.telefone_entry.get()
-        cpf = self.cpf_entry.get()
+        nome = self.nome_entry.get().strip()
+        email = self.email_entry.get().strip()
+        senha = self.senha_entry.get().strip()
+        telefone = self.telefone_entry.get().strip()
+        cpf = self.cpf_entry.get().strip()
     
-        # Tira as bordas vermelhas dos campos
         self.nome_entry.config(highlightbackground="gray", highlightcolor="gray", highlightthickness=0)
         self.email_entry.config(highlightbackground="gray", highlightcolor="gray", highlightthickness=0)
         self.senha_entry.config(highlightbackground="gray", highlightcolor="gray", highlightthickness=0)
@@ -169,37 +168,31 @@ class UserInterface:
         self.cpf_entry.config(highlightbackground="gray", highlightcolor="gray", highlightthickness=0)
 
         # Validação dos campos
-        # Valida Nome
-        if not nome or len(nome) < 7 or len(nome) > 255:
+        if not nome or len(nome) < 7:
             messagebox.showerror("Erro", "Nome inválido. O nome deve ter pelo menos 7 caracteres.")
             self.nome_entry.config(highlightbackground="red", highlightcolor="red", highlightthickness=2)
             return
         
-        # Valida Email
-        if not email or len(email) < 7 or len(email) > 255 or "@" not in email:
+        if not email or len(email) < 5 or "@" not in email:
             messagebox.showerror("Erro", "Email inválido.")
             self.email_entry.config(highlightbackground="red", highlightcolor="red", highlightthickness=2)
             return
         
-        # Valida Senha
-        if not senha or len(senha) < 7 or len(senha) > 255:
+        if not senha or len(senha) < 7:
             messagebox.showerror("Erro", "Senha inválida. A senha deve ter pelo menos 7 caracteres.")
             self.senha_entry.config(highlightbackground="red", highlightcolor="red", highlightthickness=2)
             return
         
-        # Valida Telefone
-        if not telefone or len(telefone) < 10:
+        if not telefone or len(telefone) < 10 or not telefone.isdigit():
             messagebox.showerror("Erro", "Telefone inválido.")
             self.telefone_entry.config(highlightbackground="red", highlightcolor="red", highlightthickness=2)
             return
         
-        # Valida CPF
-        if not cpf or not self.cpf_validator.validate(cpf):
+        if not self.cpf_validator.validate(cpf):
             messagebox.showerror("Erro", "CPF inválido.")
             self.cpf_entry.config(highlightbackground="red", highlightcolor="red", highlightthickness=2)
             return
         
-        # Código para cadastrar o paciente
         try:
             self.servico_paciente.salvar(Paciente(nome=nome, email=email, senha=senha, telefone=telefone, cpf=cpf))
             messagebox.showinfo("Sucesso", "Paciente cadastrado com sucesso!")
@@ -262,7 +255,6 @@ class UserInterface:
         crp = self.crp_entry.get().strip()
         especialidade = self.especialidade_entry.get().strip()
     
-        # Tira as bordas vermelhas dos campos
         self.nome_entry.config(highlightbackground="gray", highlightcolor="gray", highlightthickness=0)
         self.email_entry.config(highlightbackground="gray", highlightcolor="gray", highlightthickness=0)
         self.senha_entry.config(highlightbackground="gray", highlightcolor="gray", highlightthickness=0)
@@ -271,49 +263,41 @@ class UserInterface:
         self.crp_entry.config(highlightbackground="gray", highlightcolor="gray", highlightthickness=0)
         self.especialidade_entry.config(highlightbackground="gray", highlightcolor="gray", highlightthickness=0)
     
-        # Valida Nome
-        if not nome:
+        if not nome or len(nome) < 7:
             self.nome_entry.config(highlightbackground="red", highlightcolor="red", highlightthickness=1)
-            messagebox.showerror("Erro", "Nome inválido.")
+            messagebox.showerror("Erro", "Nome inválido. O nome deve ter pelo menos 7 caracteres.")
             return
     
-        # Valida Email
-        if not email or "@" not in email:
+        if not email or "@" not in email or len(email) < 5:
             self.email_entry.config(highlightbackground="red", highlightcolor="red", highlightthickness=1)
             messagebox.showerror("Erro", "Email inválido.")
             return
     
-        # Valida Senha
-        if not senha or len(senha) < 6:
+        if not senha or len(senha) < 7:
             self.senha_entry.config(highlightbackground="red", highlightcolor="red", highlightthickness=1)
             messagebox.showerror("Erro", "Senha inválida. A senha deve ter pelo menos 6 caracteres.")
             return
         
-        # Valida Telefone
         if not telefone or not telefone.isdigit() or len(telefone) < 10:
             self.telefone_entry.config(highlightbackground="red", highlightcolor="red", highlightthickness=1)
             messagebox.showerror("Erro", "Telefone inválido.")
             return
     
-        # Valida CPF
-        if not cpf or not self.cpf_validator.validate(cpf):
+        if not self.cpf_validator.validate(cpf):
             self.cpf_entry.config(highlightbackground="red", highlightcolor="red", highlightthickness=1)
             messagebox.showerror("Erro", "CPF inválido.")
             return
     
-        # Valida CRP
-        if not crp:
+        if not crp or len(crp) < 7:
             self.crp_entry.config(highlightbackground="red", highlightcolor="red", highlightthickness=1)
             messagebox.showerror("Erro", "CRP inválido.")
             return
         
-        # Valida Especialidade
         if not especialidade:
             self.especialidade_entry.config(highlightbackground="red", highlightcolor="red", highlightthickness=1)
             messagebox.showerror("Erro", "Especialidade inválida.")
             return
     
-        # Salvando o psicólogo no banco de dados
         try:
             self.servico_psicologo.salvar(Psicologo(nome=nome, email=email, senha=senha, telefone=telefone, cpf=cpf, crp=crp, especialidade=especialidade))
             messagebox.showinfo("Sucesso", "Psicólogo cadastrado com sucesso!")
@@ -323,16 +307,14 @@ class UserInterface:
 
     # TELAS DE PERFIL PACIENTE
     def tela_paciente(self):
-        # Limpa a janela
         for widget in self.root.winfo_children():
             widget.destroy()
 
-        # Cria o título
         title = tk.Label(self.root, text="Bem-vindo, Paciente", font=("Helvetica", 16))
         title.pack(pady=10)
 
         # Botão para acessar a tela de perfil
-        perfil_button = tk.Button(self.root, text="Tela de Perfil", command=self.tela_perfil_paciente)
+        perfil_button = tk.Button(self.root, text="Ver perfil", command=self.tela_perfil_paciente)
         perfil_button.pack(pady=5)
 
         # Botão para agendar consulta
@@ -340,7 +322,7 @@ class UserInterface:
         agendar_button.pack(pady=5)
 
         # Botão para detalhes das consultas
-        detalhes_button = tk.Button(self.root, text="Detalhes Consultas", command=self.tela_detalhes_consultas_paciente)
+        detalhes_button = tk.Button(self.root, text="Detalhar Consultas", command=self.tela_detalhes_consultas_paciente)
         detalhes_button.pack(pady=5)
 
         # Exibe as próximas duas consultas
